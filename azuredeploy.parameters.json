@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "containerName": {
+            "value": "velheim"
+        },
+        "location": {
+            "value": "eastus2"
+        },
+        "dnsNameLabel": {
+            "value": "jat-velheim"
+        },
+        "velheimServerName": {
+            "value": "jat-velheim" 
+        },
+        "velheimWorldName": {
+            "value": "xanadu" 
+        }
+    }
+}

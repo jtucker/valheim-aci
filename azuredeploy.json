@@ -1,0 +1,234 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string"
+        },
+        "containerName": {
+            "type": "string"
+        },
+        "imageName": {
+            "type": "string",
+            "defaultValue": "lloesche/valheim-server"
+        },
+        "osType": {
+            "type": "string",
+            "defaultValue": "Linux"
+        },
+        "numberCpuCores": {
+            "type": "string",
+            "defaultValue": "1"
+        },
+        "memory": {
+            "type": "string",
+            "defaultValue": "1.5"
+        },
+        "restartPolicy": {
+            "type": "string",
+            "allowedValues": [
+                "OnFailure",
+                "Always",
+                "Never"
+            ],
+            "defaultValue": "Always"
+        },
+        "velheimServerName": {
+            "type": "string"
+        },
+        "velheimWorldName": {
+            "type": "string"
+        },
+        "velheimServerPassword": {
+            "type": "securestring"
+        },
+        "ports": {
+            "type": "array",
+            "defaultValue": [
+                {
+                    "port": "2456",
+                    "protocol": "UDP"
+                },
+                {
+                    "port": "2457",
+                    "protocol": "UDP"
+                },
+                {
+                    "port": "2458",
+                    "protocol": "UDP"
+                }
+            ]
+        },
+        "dnsNameLabel": {
+            "type": "string"
+        },
+        "storageAccountType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS"
+            ],
+            "metadata": {
+                "description": "Storage account type"
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "defaultValue": "[concat('stg', uniqueString(resourceGroup().id))]"
+        },
+        "storageFileShareName": {
+            "type": "string",
+            "defaultValue": "config"
+        }
+    },
+    "variables": {
+        // "identityName": "velheimContainer",
+        // "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]", // contributer https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles
+        //"roleDefinitionName": "[guid(variables('identityName'), variables('roleDefinitionId'))]",
+        "fileShareName": "[concat('/default/', parameters('storageFileShareName'))]"
+    },
+    "resources": [
+        // {
+        //     "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+        //     "name": "[variables('identityName')]",
+        //     "apiVersion": "2018-11-30",
+        //     "location": "[parameters('location')]"
+        // },
+        // {
+        //     "type": "Microsoft.Authorization/roleAssignments",
+        //     "apiVersion": "2017-09-01",
+        //     "name": "[variables('roleDefinitionName')]",
+        //     "dependsOn": [
+        //         "[variables('identityName')]"
+        //     ],
+        //     "properties": {
+        //         "roleDefinitionId": "[variables('roleDefinitionId')]",
+        //         "principalId": "[reference(variables('identityName')).principalId]",
+        //         "scope": "[resourceGroup().id]",
+        //         "principalType": "ServicePrincipal"
+        //     }
+        // },
+        // {
+        //     "name": "[parameters('resourceGroupName')]",
+        //     "type": "Microsoft.Resources/resourceGroups",
+        //     "apiVersion": "2019-10-01",
+        //     "location": "[parameters('location')]"
+        // }
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[parameters('storageAccountName')]",
+            "apiVersion": "2019-06-01",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('storageAccountType')]"
+            },
+            "properties": {
+                "accessTier": "Hot"
+            },
+            "kind": "StorageV2",
+            "resources": [
+                {
+                    "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+                    "apiVersion": "2019-06-01",
+                    "name": "[concat(parameters('storageAccountName'), variables('fileShareName'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                    ]
+                }
+            ]
+        },
+        // {
+        //     "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+        //     "name": "[variables('identityName')]",
+        //     "apiVersion": "2018-11-30",
+        //     "location": "[parameters('location')]"
+        // },
+        // {
+        //     "type": "Microsoft.Authorization/roleAssignments",
+        //     "apiVersion": "2017-09-01",
+        //     "name": "[variables('roleDefinitionName')]",
+        //     "dependsOn": [
+        //         "[variables('identityName')]"
+        //     ],
+        //     "properties": {
+        //         "roleDefinitionId": "[variables('roleDefinitionId')]",
+        //         "principalId": "[reference(variables('identityName')).principalId]",
+        //         "scope": "[resourceGroup().id]",
+        //         "principalType": "ServicePrincipal"
+        //     }
+        // },
+        {
+            "location": "[parameters('location')]",
+            "name": "[parameters('containerName')]",
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2018-10-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+            "properties": {
+                "containers": [
+                    {
+                        "name": "[parameters('containerName')]",
+                        "properties": {
+                            "image": "[parameters('imageName')]",
+                            "resources": {
+                                "requests": {
+                                    "cpu": "[int(parameters('numberCpuCores'))]",
+                                    "memoryInGB": "[float(parameters('memory'))]"
+                                }
+                            },
+                            "environmentVariables": [
+                                {
+                                    "name": "SERVER_PASS",
+                                    "secureValue": "[parameters('velheimServerPassword')]"
+                                },
+                                {
+                                    "name": "SERVER_NAME",
+                                    "value": "[parameters('velheimServerName')]"
+                                },
+                                {
+                                    "name": "WORLD_NAME",
+                                    "value": "[parameters('velheimWorldName')]"
+                                }
+                            ],
+                            "ports": "[parameters('ports')]",
+                            "volumeMounts": [
+                                {
+                                    "mountPath": "/config",
+                                    "name": "config",
+                                    "readOnly": false
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "restartPolicy": "[parameters('restartPolicy')]",
+                "osType": "[parameters('osType')]",
+                "ipAddress": {
+                    "type": "Public",
+                    "ports": "[parameters('ports')]",
+                    "dnsNameLabel": "[parameters('dnsNameLabel')]"
+                },
+                "volumes": [
+                    {
+                        "name": "config",
+                        "azureFile": {
+                            "readOnly": false,
+                            "shareName": "[parameters('storageFileShareName')]",
+                            "storageAccountName": "[parameters('storageAccountName')]",
+                            "storageAccountKey": "[listKeys(parameters('storageAccountName'), '2017-10-01').keys[0].value]"
+                        }
+                    }
+                ]
+            },
+            "tags": {}
+        }
+    ],
+    "outputs": {
+        "containerUrl": {
+            "type": "string",
+            "value": "[concat(parameters('dnsNameLabel'), '.', parameters('location'), '.azurecontainer.io')]"
+        }
+    }
+}
