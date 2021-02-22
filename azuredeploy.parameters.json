@@ -3,18 +3,18 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "containerName": {
-            "value": "velheim"
+            "value": "valheim"
         },
         "location": {
             "value": "eastus2"
         },
         "dnsNameLabel": {
-            "value": "jat-velheim"
+            "value": "jatvalheim"
         },
-        "velheimServerName": {
-            "value": "jat-velheim" 
+        "valheimServerName": {
+            "value": "jatvalheim" 
         },
-        "velheimWorldName": {
+        "valheimWorldName": {
             "value": "xanadu" 
         }
     }

@@ -18,11 +18,11 @@
         },
         "numberCpuCores": {
             "type": "string",
-            "defaultValue": "1"
+            "defaultValue": "4"
         },
         "memory": {
             "type": "string",
-            "defaultValue": "1.5"
+            "defaultValue": "8"
         },
         "restartPolicy": {
             "type": "string",
@@ -33,13 +33,13 @@
             ],
             "defaultValue": "Always"
         },
-        "velheimServerName": {
+        "valheimServerName": {
             "type": "string"
         },
-        "velheimWorldName": {
+        "valheimWorldName": {
             "type": "string"
         },
-        "velheimServerPassword": {
+        "valheimServerPassword": {
             "type": "securestring"
         },
         "ports": {
@@ -83,38 +83,9 @@
         }
     },
     "variables": {
-        // "identityName": "velheimContainer",
-        // "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]", // contributer https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles
-        //"roleDefinitionName": "[guid(variables('identityName'), variables('roleDefinitionId'))]",
         "fileShareName": "[concat('/default/', parameters('storageFileShareName'))]"
     },
     "resources": [
-        // {
-        //     "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-        //     "name": "[variables('identityName')]",
-        //     "apiVersion": "2018-11-30",
-        //     "location": "[parameters('location')]"
-        // },
-        // {
-        //     "type": "Microsoft.Authorization/roleAssignments",
-        //     "apiVersion": "2017-09-01",
-        //     "name": "[variables('roleDefinitionName')]",
-        //     "dependsOn": [
-        //         "[variables('identityName')]"
-        //     ],
-        //     "properties": {
-        //         "roleDefinitionId": "[variables('roleDefinitionId')]",
-        //         "principalId": "[reference(variables('identityName')).principalId]",
-        //         "scope": "[resourceGroup().id]",
-        //         "principalType": "ServicePrincipal"
-        //     }
-        // },
-        // {
-        //     "name": "[parameters('resourceGroupName')]",
-        //     "type": "Microsoft.Resources/resourceGroups",
-        //     "apiVersion": "2019-10-01",
-        //     "location": "[parameters('location')]"
-        // }
         {
             "type": "Microsoft.Storage/storageAccounts",
             "name": "[parameters('storageAccountName')]",
@@ -137,27 +108,7 @@
                     ]
                 }
             ]
-        },
-        // {
-        //     "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-        //     "name": "[variables('identityName')]",
-        //     "apiVersion": "2018-11-30",
-        //     "location": "[parameters('location')]"
-        // },
-        // {
-        //     "type": "Microsoft.Authorization/roleAssignments",
-        //     "apiVersion": "2017-09-01",
-        //     "name": "[variables('roleDefinitionName')]",
-        //     "dependsOn": [
-        //         "[variables('identityName')]"
-        //     ],
-        //     "properties": {
-        //         "roleDefinitionId": "[variables('roleDefinitionId')]",
-        //         "principalId": "[reference(variables('identityName')).principalId]",
-        //         "scope": "[resourceGroup().id]",
-        //         "principalType": "ServicePrincipal"
-        //     }
-        // },
+        },        
         {
             "location": "[parameters('location')]",
             "name": "[parameters('containerName')]",
@@ -181,15 +132,15 @@
                             "environmentVariables": [
                                 {
                                     "name": "SERVER_PASS",
-                                    "secureValue": "[parameters('velheimServerPassword')]"
+                                    "secureValue": "[parameters('valheimServerPassword')]"
                                 },
                                 {
                                     "name": "SERVER_NAME",
-                                    "value": "[parameters('velheimServerName')]"
+                                    "value": "[parameters('valheimServerName')]"
                                 },
                                 {
                                     "name": "WORLD_NAME",
-                                    "value": "[parameters('velheimWorldName')]"
+                                    "value": "[parameters('valheimWorldName')]"
                                 }
                             ],
                             "ports": "[parameters('ports')]",
